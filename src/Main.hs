@@ -17,7 +17,7 @@
 
 module Main (main) where
 
-import GShell.Constant		(version)
+import GShell.Constants		(version, unknownException)
 import GShell.Commands		(commandProcess, tokenizeCommand)
 import System.IO.Error		(isEOFError, catchIOError, IOError)
 import Control.Exception	(displayException)
@@ -47,7 +47,3 @@ loop = do	putChar '>'
 
 		putChar '\n'
 		loop
-
-
-unknownException :: IOError -> a
-unknownException e = error $ "unknown exception occured: " ++ (displayException e)

@@ -19,3 +19,6 @@ module GShell.Constant where
 
 version :: String
 version = "1.0.0"
+
+unknownException :: IOError -> a
+unknwonException e = error $ "an unknown exception occured: " ++ (displayException e)

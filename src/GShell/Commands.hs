@@ -17,7 +17,9 @@
 
 module GShell.Commands (commandProcess, tokenizeCommand) where
 
-import System.IO (hPutStrLn, stderr)
+import System.IO	(hPutStrLn, stderr)
+import System.IO.Error	(catchIOError)
+import GShell.Constants	(unknownException)
 
 commandProcess :: [String] -> IO ()
 commandProcess []		=	error "got empty list"
@@ -43,3 +45,12 @@ run tokens n f = if (length tokens) < n then commandLineError "few args" else f
 
 commandLineError :: String -> IO ()
 commandLineError message = hPutStrLn stderr $ "Error: " ++ message
+
+command_mkfile :: String -> IO ()
+command_mkfile filename = doesFileExist filename >>= (\exists ->	if exists
+										then	commandLineError "that file already exists"
+										else	((writeFile filename "")
+												`catchIOError` (\e -> case e of _	| isFullError e		-> commandLineError "your device is full"
+																	| isIllegalOperation e	-> commandLineError "that operation is illegal"
+																	| isPermissionError e	-> commandLineError "you do not have the permission"
+																	| otherwise		-> unknownException e)))
