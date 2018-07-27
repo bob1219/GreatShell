@@ -21,9 +21,12 @@ import GShell.Constant		(version)
 import GShell.Commands		(commandProcess, tokenizeCommand)
 import System.IO.Error		(isEOFError, catchIOError, IOError)
 import Control.Exception	(displayException)
+import System.IO		(hSetBuffering, stdout)
 
 main :: IO ()
-main = do	putStrLn $ "GreatShell Version " ++ version
+main = do	hSetBuffering stdout NoBuffering
+
+		putStrLn $ "GreatShell Version " ++ version
 		putStrLn "Copyright 2018 Daiki Yoshida"
 		putChar '\n'
 
