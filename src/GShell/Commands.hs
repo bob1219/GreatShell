@@ -17,6 +17,8 @@
 
 module GShell.Commands (commandProcess, tokenizeCommand) where
 
+import System.IO (hPutStrLn, stderr)
+
 commandProcess :: [String] -> IO ()
 commandProcess []		=	error "got empty list"
 commandProcess (token:tokens)	=	case token of	"mkfile"	-> run tokens 1 (command_mkfile $ tokens !! 0)
