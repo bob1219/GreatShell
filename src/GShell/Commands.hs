@@ -20,6 +20,7 @@ module GShell.Commands (commandProcess, tokenizeCommand) where
 import System.IO	(hPutStrLn, stderr)
 import System.IO.Error	(catchIOError)
 import GShell.Constants	(unknownException)
+import System.Directory	(removeFile)
 
 commandProcess :: [String] -> IO ()
 commandProcess []		=	error "got empty list"
@@ -54,3 +55,11 @@ command_mkfile filename = doesFileExist filename >>= (\exists ->	if exists
 																	| isIllegalOperation e	-> commandLineError "that operation is illegal"
 																	| isPermissionError e	-> commandLineError "you do not have the permission"
 																	| otherwise		-> unknownException e)))
+
+command_rmfile :: String -> IO ()
+command_rmfile filename =	(removeFile filename)
+					`catchIOError` (\e -> case e of _	| isDoesNotExistError e	-> commandLineError "that file does not exist"
+										| isAlreadyInUseError e	-> commandLineError "that file already in use"
+										| isIllegalOperation e	-> commandLineError "that operation is illegal"
+										| isPermissionError e	-> commandLineError "you do not have the permission"
+										| otherwise		-> unknownException e)
