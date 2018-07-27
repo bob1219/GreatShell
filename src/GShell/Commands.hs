@@ -47,7 +47,7 @@ run tokens n f = if (length tokens) < n then commandLineError "few args" else f
 commandLineError :: String -> IO ()
 commandLineError message = hPutStrLn stderr $ "Error: " ++ message
 
-command_mkfile :: String -> IO ()
+command_mkfile :: FilePath -> IO ()
 command_mkfile filename = doesFileExist filename >>= (\exists ->	if exists
 										then	commandLineError "that file already exists"
 										else	((writeFile filename "")
@@ -56,7 +56,7 @@ command_mkfile filename = doesFileExist filename >>= (\exists ->	if exists
 																	| isPermissionError e	-> commandLineError "you do not have the permission"
 																	| otherwise		-> unknownException e)))
 
-command_rmfile :: String -> IO ()
+command_rmfile :: FilePath -> IO ()
 command_rmfile filename =	(removeFile filename)
 					`catchIOError` (\e -> case e of _	| isDoesNotExistError e	-> commandLineError "that file does not exist"
 										| isAlreadyInUseError e	-> commandLineError "that file already in use"
@@ -64,7 +64,7 @@ command_rmfile filename =	(removeFile filename)
 										| isPermissionError e	-> commandLineError "you do not have the permission"
 										| otherwise		-> unknownException e)
 
-command_cpfile :: String -> String -> IO ()
+command_cpfile :: FilePath -> FilePath -> IO ()
 command_cpfile src dst =	(copyFileWithMetadata src dst)
 					`catchIOError` (\e -> case e of _	| isDoesNotExistError e	-> commandLineError "that source-file does not exist"
 										| isAlreadyInUseError e	-> commandLineError "that files already in use"
