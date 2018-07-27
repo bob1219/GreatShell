@@ -20,7 +20,7 @@ module GShell.Commands (commandProcess, tokenizeCommand) where
 import System.IO	(hPutStrLn, stderr)
 import System.IO.Error	(catchIOError)
 import GShell.Constants	(unknownException)
-import System.Directory	(removeFile, copyFileWithMetadata)
+import System.Directory	(removeFile, copyFileWithMetadata, renameFile)
 
 commandProcess :: [String] -> IO ()
 commandProcess []		=	error "got empty list"
@@ -66,6 +66,15 @@ command_rmfile filename =	(removeFile filename)
 
 command_cpfile :: FilePath -> FilePath -> IO ()
 command_cpfile src dst =	(copyFileWithMetadata src dst)
+					`catchIOError` (\e -> case e of _	| isDoesNotExistError e	-> commandLineError "that source-file does not exist"
+										| isAlreadyInUseError e	-> commandLineError "that files already in use"
+										| isFullError e		-> commandLineError "your device is full"
+										| isIllegalOperation e	-> commandLineError "that operation is illegal"
+										| isPermissionError e	-> commandLineError "you do not have the permission"
+										| otherwise		-> unknownException e)
+
+command_renfile :: FilePath -> FilePath -> IO ()
+command_renfile src dst =	(renameFile src dst)
 					`catchIOError` (\e -> case e of _	| isDoesNotExistError e	-> commandLineError "that source-file does not exist"
 										| isAlreadyInUseError e	-> commandLineError "that files already in use"
 										| isFullError e		-> commandLineError "your device is full"
