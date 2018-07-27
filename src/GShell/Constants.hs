@@ -15,7 +15,10 @@
 -- You should have received a copy of the GNU General Public License
 -- along with GreatShell. If not, see <http://www.gnu.org/licenses/>.
 
-module GShell.Constant where
+module GShell.Constants where
+
+import System.IO.Error		(IOError)
+import Control.Exception	(displayException)
 
 version :: String
 version = "1.0.0"
