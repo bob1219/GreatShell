@@ -20,7 +20,7 @@ module GShell.Commands (commandProcess, tokenizeCommand) where
 import System.IO	(hPutStrLn, stderr)
 import System.IO.Error	(catchIOError)
 import GShell.Constants	(unknownException)
-import System.Directory	(removeFile, copyFileWithMetadata, renameFile, createDirectory, doesFileExist, removeDirectory)
+import System.Directory	(removeFile, copyFileWithMetadata, renameFile, createDirectory, doesFileExist, removeDirectory, doesDirectoryExist, getDirectoryContents)
 
 commandProcess :: [String] -> IO ()
 commandProcess []		=	error "got empty list"
@@ -98,3 +98,30 @@ command_rmdir dirname =	(removeDirectory dirname)
 									| isIllegalOperation e	-> commandLineError "that operation is illegal"
 									| isPermissionError e	-> commandLineError "you do not have the permission"
 									| otherwise		-> unknownException e)
+
+command_cpdir :: FilePath -> FilePath -> IO ()
+command_cpdir src dst =	(do	((doesDirectoryExist dst) >>=
+					(\exists ->	if exists
+								then removeDirectory dst
+								else ()))
+				createDirectory dst
+				loop (filter notcdpd $ getDirectoryContents src) src dst)
+				`catchIOError` (\e -> case e of _	| isDoesNotExistError e	-> commandLineError "that source-file does not exist"
+									| isAlreadyInUseError e	-> commandLineError "that files already in use"
+									| isFullError e		-> commandLineError "your device is full"
+									| isIllegalOperation e	-> commandLineError "that operation is illegal"
+									| isPermissionError e	-> commandLineError "you do not have the permission"
+									| otherwise		-> unknownException e)
+	where
+		loop (content:contents) src dst = do	((doesFileExist newsrc) >>=
+								(\isFile ->	if isFile
+											then copyFileWithMetadata newsrc newdst
+											else command_cpdir newsrc newdst))
+							loop contents src dst
+			where
+				newsrc = src ++ "/" ++ content
+				newdst = dst ++ "/" ++ content
+
+		notcdpd "."	= False
+		notcdpd ".."	= False
+		notcdpd _	= True
