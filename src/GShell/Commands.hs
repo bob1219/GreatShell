@@ -20,7 +20,7 @@ module GShell.Commands (commandProcess, tokenizeCommand) where
 import System.IO	(hPutStrLn, stderr)
 import System.IO.Error	(catchIOError)
 import GShell.Constants	(unknownException)
-import System.Directory	(removeFile, copyFileWithMetadata, renameFile, createDirectory, doesFileExist)
+import System.Directory	(removeFile, copyFileWithMetadata, renameFile, createDirectory, doesFileExist, removeDirectory)
 
 commandProcess :: [String] -> IO ()
 commandProcess []		=	error "got empty list"
@@ -90,3 +90,11 @@ command_mkdir dirname =	(createDirectory dirname)
 									| isIllegalOperation e		-> commandLineError "that operation is illegal"
 									| isPermissionError e		-> commandLineError "you do not have the permission"
 									| otherwise			-> unknownException e)
+
+command_rmdir :: FilePath -> IO ()
+command_rmdir dirname =	(removeDirectory dirname)
+				`catchIOError` (\e -> case e of _	| isDoesNotExistError e	-> commandLineError "that directory does not exist"
+									| isAlreadyInUseError e	-> commandLineError "that directory already in use"
+									| isIllegalOperation e	-> commandLineError "that operation is illegal"
+									| isPermissionError e	-> commandLineError "you do not have the permission"
+									| otherwise		-> unknownException e)
