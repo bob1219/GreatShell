@@ -17,11 +17,10 @@
 
 module Main (main) where
 
-import GShell.Constants		(version, unknownException)
-import GShell.Commands		(commandProcess, tokenizeCommand)
-import System.IO.Error		(isEOFError, catchIOError)
-import Control.Exception	(displayException)
-import System.IO		(hSetBuffering, stdout)
+import GShell.Constants	(version, unknownException)
+import GShell.Commands	(commandProcess, tokenizeCommand)
+import System.IO.Error	(isEOFError, catchIOError)
+import System.IO	(hSetBuffering, stdout)
 
 main :: IO ()
 main = do	hSetBuffering stdout NoBuffering
