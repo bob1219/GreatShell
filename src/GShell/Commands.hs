@@ -48,7 +48,7 @@ commandLineError :: String -> IO ()
 commandLineError message = hPutStrLn stderr $ "Error: " ++ message
 
 command_mkfile :: FilePath -> IO ()
-command_mkfile filename = doesFileExist filename >>= (\exists ->	if exists
+command_mkfile filename = (doesFileExist filename) >>= (\exists ->	if exists
 										then	commandLineError "that file already exists"
 										else	((writeFile filename "")
 												`catchIOError` (\e -> case e of _	| isFullError e		-> commandLineError "your device is full"
